@@ -6,6 +6,7 @@ import { listAdminCharacters } from "@/lib/characters";
 import { getEvent } from "@/lib/event";
 import { adminLogoutAction, adminResetQuizAction, adminUpdateEventAction } from "@/lib/actions";
 import ReassignForm from "./ReassignForm";
+import AdminKillerSection from "./AdminKillerSection";
 
 export default async function AdminDashboard({
   searchParams,
@@ -18,18 +19,22 @@ export default async function AdminDashboard({
   const guests = await listGuestsForAdmin();
   const characters = await listAdminCharacters();
   const event = await getEvent();
-  const killer = characters.find((c) => c.is_killer === 1);
 
   return (
     <main className="min-h-screen px-4 py-10">
       <div className="max-w-5xl mx-auto space-y-8">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <h1 className="font-display text-4xl text-mystery-purple">Host Dashboard</h1>
-          <form action={adminLogoutAction}>
-            <button type="submit" className="mystery-btn mystery-btn-secondary text-sm">
-              Log Out
-            </button>
-          </form>
+          <div className="flex items-center gap-2">
+            <Link href="/admin/messages" className="mystery-btn mystery-btn-secondary text-sm">
+              💬 All Messages
+            </Link>
+            <form action={adminLogoutAction}>
+              <button type="submit" className="mystery-btn mystery-btn-secondary text-sm">
+                Log Out
+              </button>
+            </form>
+          </div>
         </div>
 
         {saved && (
@@ -38,25 +43,7 @@ export default async function AdminDashboard({
           </p>
         )}
 
-        {/* GM info: who the killer is, and whether they've confirmed the role in the app. */}
-        <div className="mystery-card px-6 py-5 !border-mystery-purple bg-mystery-purple/5 space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-wide text-mystery-purple">
-            🔪 For the GM only
-          </p>
-          <p className="font-display text-xl text-mystery-brown">
-            Killer: <span className="text-mystery-purple">{killer?.name ?? "Not yet set"}</span>
-          </p>
-          <p className="text-sm text-mystery-brown/70">
-            Has confirmed their role in the app:{" "}
-            <span
-              className={
-                event.killer_confirmed ? "text-green-700 font-semibold" : "text-red-700 font-semibold"
-              }
-            >
-              {event.killer_confirmed ? "Yes" : "No"}
-            </span>
-          </p>
-        </div>
+        <AdminKillerSection characters={characters} killerConfirmed={event.killer_confirmed === 1} />
 
         {/* Event details editor */}
         <section className="mystery-card px-6 py-6 space-y-4">
@@ -138,36 +125,6 @@ export default async function AdminDashboard({
               Manual reassignment (swap two guests&apos; characters)
             </p>
             <ReassignForm guests={guests} />
-          </div>
-        </section>
-
-        {/* Character roster */}
-        <section className="mystery-card px-6 py-6 space-y-4">
-          <h2 className="font-display text-2xl text-mystery-orange-dark">
-            Character Roster ({characters.filter((c) => !c.is_gm).length} suspects
-            {characters.some((c) => c.is_gm) ? " + GM" : ""})
-          </h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {characters.map((c) => (
-              <Link
-                key={c.id}
-                href={`/admin/characters/${c.id}`}
-                className={`border-2 rounded-lg px-4 py-3 transition-colors ${
-                  c.is_killer
-                    ? "border-red-400 hover:border-red-500 bg-red-50"
-                    : c.is_gm
-                      ? "border-mystery-purple/40 hover:border-mystery-purple bg-mystery-purple/5"
-                      : "border-mystery-brown/20 hover:border-mystery-orange"
-                }`}
-              >
-                <p className="font-display text-lg">
-                  {c.name} {c.is_killer === 1 ? "🔪" : ""}
-                </p>
-                <p className="text-xs text-mystery-brown/60">
-                  {c.is_gm ? "🔮 Game Master" : c.taken ? "Claimed" : "Unclaimed"}
-                </p>
-              </Link>
-            ))}
           </div>
         </section>
       </div>

@@ -82,9 +82,12 @@ export async function initSchema(db: Client) {
       trait_curiosity INTEGER NOT NULL DEFAULT 3,
       portrait_image TEXT DEFAULT '',
       bio TEXT DEFAULT 'TODO: Write bio',
+      personality TEXT DEFAULT '',
+      life_outside_weekend TEXT DEFAULT '',
       relationship_to_scooby TEXT DEFAULT 'TODO: Write relationship',
       alibi TEXT DEFAULT 'TODO: Write alibi',
       secret TEXT DEFAULT 'TODO: Write secret',
+      motive TEXT DEFAULT '',
       is_killer INTEGER NOT NULL DEFAULT 0,
       real_motive TEXT DEFAULT NULL,
       gender TEXT NOT NULL DEFAULT 'any',
@@ -120,6 +123,23 @@ export async function initSchema(db: Client) {
     );
 
     INSERT OR IGNORE INTO event (id) VALUES (1);
+
+    -- channel_type: 'character_dm' | 'admin_dm' | 'public'.
+    -- channel_key: character_dm -> a fixed pair id (see CHARACTER_DM_PAIRS in
+    -- messages.ts); admin_dm -> 'guest-{id}'; public -> the literal 'public'.
+    -- sender_guest_id NULL means the message was sent by the admin/GM.
+    CREATE TABLE IF NOT EXISTS messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      channel_type TEXT NOT NULL,
+      channel_key TEXT NOT NULL,
+      sender_guest_id INTEGER DEFAULT NULL,
+      body TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY (sender_guest_id) REFERENCES guests(id)
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_messages_channel
+      ON messages (channel_type, channel_key, created_at);
   `);
 }
 
@@ -145,6 +165,13 @@ export async function runMigrations(db: Client) {
   // but never assignable via the quiz, never a killer candidate, and not
   // counted in the "characters still unclaimed" teaser.
   await addColumnIfMissing("characters", "is_gm", "INTEGER NOT NULL DEFAULT 0");
+  // Public, from the Player Packets: PERSONALITY and LIFE OUTSIDE THIS WEEKEND sections.
+  await addColumnIfMissing("characters", "personality", "TEXT DEFAULT ''");
+  await addColumnIfMissing("characters", "life_outside_weekend", "TEXT DEFAULT ''");
+  // Private, guest-facing: the Round 5 "MOTIVE" script every character reads
+  // aloud. Distinct from real_motive — that one is the killer's true reason,
+  // never shown anywhere in the app, handed to them physically at the event.
+  await addColumnIfMissing("characters", "motive", "TEXT DEFAULT ''");
 }
 
 export type Character = {
@@ -158,9 +185,12 @@ export type Character = {
   trait_curiosity: number;
   portrait_image: string;
   bio: string;
+  personality: string;
+  life_outside_weekend: string;
   relationship_to_scooby: string;
   alibi: string;
   secret: string;
+  motive: string;
   is_killer: number;
   real_motive: string | null;
   gender: Gender;

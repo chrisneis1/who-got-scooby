@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getEvent } from "@/lib/event";
 import { getCurrentGuest } from "@/lib/guest-session";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
+import LogoutBar from "@/components/LogoutBar";
 
 export default async function LandingPage() {
   const event = await getEvent();
@@ -17,6 +18,7 @@ export default async function LandingPage() {
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-4 py-16">
+      {guest && <LogoutBar guestName={guest.name} />}
       <div className="max-w-2xl w-full text-center space-y-8">
         <div className="mystery-card px-8 py-10 space-y-6">
           <p className="uppercase tracking-[0.3em] text-sm text-mystery-green font-semibold">

@@ -3,8 +3,11 @@ import { redirect } from "next/navigation";
 import { getCurrentGuest } from "@/lib/guest-session";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { listPublicCharacters, countUnclaimedCharacters } from "@/lib/characters";
+import { listMessages, resolveSenderCharacterNames } from "@/lib/messages";
+import { sendPublicMessageAction } from "@/lib/message-actions";
 import AutoRefresh from "./AutoRefresh";
 import GuestNav from "@/components/GuestNav";
+import ChatThread, { DisplayMessage } from "@/components/ChatThread";
 
 export default async function BasecampPage() {
   const guest = await getCurrentGuest();
@@ -14,6 +17,17 @@ export default async function BasecampPage() {
   const unclaimed = await countUnclaimedCharacters();
   const gm = characters.find((c) => c.is_gm === 1);
   const suspects = characters.filter((c) => c.is_gm === 0);
+
+  const publicMessagesRaw = await listMessages("public", "public");
+  const senderIds = [...new Set(publicMessagesRaw.map((m) => m.sender_guest_id).filter((id): id is number => id !== null))];
+  const senderNames = await resolveSenderCharacterNames(senderIds);
+  const publicMessages: DisplayMessage[] = publicMessagesRaw.map((m) => ({
+    id: m.id,
+    body: m.body,
+    created_at: m.created_at,
+    isMine: guest ? m.sender_guest_id === guest.id : false,
+    senderLabel: m.sender_guest_id ? (senderNames.get(m.sender_guest_id) ?? "Unknown") : "Host",
+  }));
 
   return (
     <main className="min-h-screen px-4 py-12">
@@ -86,6 +100,18 @@ export default async function BasecampPage() {
                   {c.name}
                 </h2>
                 <p className="text-sm text-center text-mystery-brown/80">{c.bio}</p>
+                {c.personality && (
+                  <p className="text-xs text-center text-mystery-brown/70">
+                    <span className="font-semibold text-mystery-brown/50">Personality: </span>
+                    {c.personality}
+                  </p>
+                )}
+                {c.life_outside_weekend && (
+                  <p className="text-xs text-center text-mystery-brown/70">
+                    <span className="font-semibold text-mystery-brown/50">Outside this weekend: </span>
+                    {c.life_outside_weekend}
+                  </p>
+                )}
                 <p className="text-xs text-center italic text-mystery-green-dark">
                   {c.relationship_to_scooby}
                 </p>
@@ -93,6 +119,22 @@ export default async function BasecampPage() {
             ))}
           </div>
         )}
+
+        <section className="mystery-card px-6 py-6 space-y-3 max-w-2xl mx-auto">
+          <h2 className="font-display text-2xl text-mystery-brown text-center">
+            📌 Message Board
+          </h2>
+          <p className="text-xs text-mystery-brown/60 text-center">
+            Public — everyone at the party can see this.
+          </p>
+          <ChatThread
+            messages={publicMessages}
+            sendAction={guest ? sendPublicMessageAction : undefined}
+            readOnly={!guest}
+            placeholder="Post something everyone can see..."
+            emptyLabel="Nothing posted yet."
+          />
+        </section>
       </div>
 
       <Link

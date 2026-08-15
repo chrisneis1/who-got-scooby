@@ -8,6 +8,8 @@ export type PublicCharacter = {
   name: string;
   portrait_image: string;
   bio: string;
+  personality: string;
+  life_outside_weekend: string;
   relationship_to_scooby: string;
   is_gm: number;
 };
@@ -35,9 +37,12 @@ export type AdminCharacter = {
   trait_curiosity: number;
   portrait_image: string;
   bio: string;
+  personality: string;
+  life_outside_weekend: string;
   relationship_to_scooby: string;
   alibi: string;
   secret: string;
+  motive: string;
   is_gm: number;
   is_killer: number;
   taken: number;
@@ -56,13 +61,14 @@ export type PrivateCharacter = Omit<AdminCharacter, "is_killer"> & {
 const ADMIN_SAFE_COLUMNS = `
   id, name,
   trait_bravery, trait_logic, trait_charm, trait_loyalty, trait_comfort, trait_curiosity,
-  portrait_image, bio, relationship_to_scooby, alibi, secret, is_gm, is_killer, taken
+  portrait_image, bio, personality, life_outside_weekend, relationship_to_scooby,
+  alibi, secret, motive, is_gm, is_killer, taken
 `;
 
 export async function listPublicCharacters(): Promise<PublicCharacter[]> {
   const db = await getDb();
   const rs = await db.execute(
-    `SELECT id, name, portrait_image, bio, relationship_to_scooby, is_gm
+    `SELECT id, name, portrait_image, bio, personality, life_outside_weekend, relationship_to_scooby, is_gm
      FROM characters WHERE taken = 1 OR is_gm = 1 ORDER BY is_gm ASC, name ASC`
   );
   return rowsToPlain<PublicCharacter>(rs);
@@ -92,17 +98,23 @@ export async function getAdminCharacter(id: number): Promise<AdminCharacter | un
 
 export type CharacterEditableFields = {
   bio?: string;
+  personality?: string;
+  life_outside_weekend?: string;
   relationship_to_scooby?: string;
   alibi?: string;
   secret?: string;
+  motive?: string;
   portrait_image?: string;
 };
 
 const EDITABLE_KEYS: (keyof CharacterEditableFields)[] = [
   "bio",
+  "personality",
+  "life_outside_weekend",
   "relationship_to_scooby",
   "alibi",
   "secret",
+  "motive",
   "portrait_image",
 ];
 

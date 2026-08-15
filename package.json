@@ -12,6 +12,7 @@
     "db:pick-killer": "tsx src/lib/pick-killer.ts",
     "db:add-gm": "tsx src/lib/add-gm.ts",
     "db:placeholder-photos": "tsx src/lib/placeholder-photos.ts",
+    "db:reset-guests": "tsx src/lib/reset-guests.ts",
     "db:migrate-to-turso": "tsx src/lib/migrate-to-turso.ts"
   },
   "dependencies": {

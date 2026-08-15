@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentGuest } from "@/lib/guest-session";
 import { getPrivateCharacterForGuest } from "@/lib/characters";
 import RevealClient from "./RevealClient";
+import LogoutBar from "@/components/LogoutBar";
 
 export default async function RevealPage() {
   const guest = await getCurrentGuest();
@@ -12,10 +13,13 @@ export default async function RevealPage() {
   if (!character) redirect("/quiz");
 
   return (
-    <RevealClient
-      name={character.name}
-      portrait={character.portrait_image}
-      bio={character.bio}
-    />
+    <>
+      <LogoutBar guestName={guest.name} />
+      <RevealClient
+        name={character.name}
+        portrait={character.portrait_image}
+        bio={character.bio}
+      />
+    </>
   );
 }

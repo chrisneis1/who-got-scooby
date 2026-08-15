@@ -3,6 +3,7 @@ import Link from "next/link";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { getAdminCharacter } from "@/lib/characters";
 import { adminUpdateCharacterAction } from "@/lib/actions";
+import KillerIndicator from "./KillerIndicator";
 
 export default async function CharacterEditPage({
   params,
@@ -53,9 +54,7 @@ export default async function CharacterEditPage({
                 ) : (
                   <span className="text-mystery-brown/50">Unclaimed</span>
                 )}
-                {character.is_killer === 1 && (
-                  <span className="text-red-600">🔪 This is the killer — GM only</span>
-                )}
+                {!character.is_gm && <KillerIndicator isKiller={character.is_killer === 1} />}
               </p>
             </div>
           </div>
@@ -110,6 +109,29 @@ export default async function CharacterEditPage({
             </div>
             <div>
               <label className="block text-sm font-semibold mb-1">
+                Personality <span className="font-normal text-mystery-brown/50">(public)</span>
+              </label>
+              <textarea
+                name="personality"
+                defaultValue={character.personality}
+                rows={2}
+                className="mystery-input w-full"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold mb-1">
+                Life Outside This Weekend{" "}
+                <span className="font-normal text-mystery-brown/50">(public)</span>
+              </label>
+              <textarea
+                name="life_outside_weekend"
+                defaultValue={character.life_outside_weekend}
+                rows={2}
+                className="mystery-input w-full"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold mb-1">
                 Relationship to Scooby{" "}
                 <span className="font-normal text-mystery-brown/50">(public)</span>
               </label>
@@ -124,7 +146,7 @@ export default async function CharacterEditPage({
               <>
                 <div>
                   <label className="block text-sm font-semibold mb-1">
-                    Alibi <span className="font-normal text-mystery-brown/50">(private)</span>
+                    Alibi <span className="font-normal text-mystery-brown/50">(private — Round 1)</span>
                   </label>
                   <textarea
                     name="alibi"
@@ -135,11 +157,22 @@ export default async function CharacterEditPage({
                 </div>
                 <div>
                   <label className="block text-sm font-semibold mb-1">
-                    Secret <span className="font-normal text-mystery-brown/50">(private)</span>
+                    Secret <span className="font-normal text-mystery-brown/50">(private — Round 3)</span>
                   </label>
                   <textarea
                     name="secret"
                     defaultValue={character.secret}
+                    rows={3}
+                    className="mystery-input w-full"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-1">
+                    Motive <span className="font-normal text-mystery-brown/50">(private — Round 5)</span>
+                  </label>
+                  <textarea
+                    name="motive"
+                    defaultValue={character.motive}
                     rows={3}
                     className="mystery-input w-full"
                   />

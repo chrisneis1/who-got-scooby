@@ -200,13 +200,16 @@ export async function adminUpdateCharacterAction(id: number, formData: FormData)
   // is_killer/real_motive are never part of CharacterEditableFields.
   const safeFields: CharacterEditableFields = {
     bio: String(formData.get("bio") ?? ""),
+    personality: String(formData.get("personality") ?? ""),
+    life_outside_weekend: String(formData.get("life_outside_weekend") ?? ""),
     relationship_to_scooby: String(formData.get("relationship_to_scooby") ?? ""),
   };
-  // Alibi/Secret are omitted from the form entirely for the GM (not a
+  // Alibi/Secret/Motive are omitted from the form entirely for the GM (not a
   // suspect), so only touch these columns when the fields were actually
   // present — otherwise saving the GM's bio would silently blank them out.
   if (formData.has("alibi")) safeFields.alibi = String(formData.get("alibi") ?? "");
   if (formData.has("secret")) safeFields.secret = String(formData.get("secret") ?? "");
+  if (formData.has("motive")) safeFields.motive = String(formData.get("motive") ?? "");
 
   // A newly uploaded file always wins over the URL field. Storing the image
   // as a data URI (rather than a file on disk) keeps this working the same
@@ -229,6 +232,30 @@ export async function adminUpdateCharacterAction(id: number, formData: FormData)
 
   await updateCharacterFields(id, safeFields);
   redirect("/admin?saved=1");
+}
+
+export async function guestUpdatePortraitAction(formData: FormData) {
+  const guest = await getCurrentGuest();
+  if (!guest || !guest.assigned_character_id) {
+    redirect("/signup");
+  }
+
+  const uploaded = formData.get("portrait_file");
+  if (!(uploaded instanceof File) || uploaded.size === 0) {
+    redirect("/me?error=" + encodeURIComponent("Choose a photo to upload."));
+  }
+  if (uploaded.size > MAX_PORTRAIT_BYTES) {
+    redirect("/me?error=" + encodeURIComponent("That image is too large — please use one under 4MB."));
+  }
+
+  const bytes = Buffer.from(await uploaded.arrayBuffer());
+  const mime = uploaded.type || "image/jpeg";
+  const portrait_image = `data:${mime};base64,${bytes.toString("base64")}`;
+
+  // Scoped to the guest's own assigned character only — no character id is
+  // ever accepted from the client here, unlike the admin version.
+  await updateCharacterFields(guest.assigned_character_id, { portrait_image });
+  redirect("/me?saved=1");
 }
 
 export async function adminUpdateEventAction(formData: FormData) {

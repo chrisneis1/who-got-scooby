@@ -41,14 +41,29 @@ async function seedContent() {
     }
 
     // --- Apply content ---
+    // real_motive is only set for the killer (Daphne) — every other
+    // character's ROSTER_CONTENT entry omits it entirely, and gets NULL
+    // here, since their stated Round 5 motive already is their real one.
     let updated = 0;
     for (const c of ROSTER_CONTENT) {
       const result = await tx.execute({
         sql: `UPDATE characters
-              SET bio = ?, relationship_to_scooby = ?, alibi = ?, secret = ?,
+              SET bio = ?, personality = ?, life_outside_weekend = ?,
+                  relationship_to_scooby = ?, alibi = ?, secret = ?, motive = ?,
                   real_motive = ?, gender = ?
               WHERE name = ?`,
-        args: [c.bio, c.relationship_to_scooby, c.alibi, c.secret, c.real_motive, c.gender, c.name],
+        args: [
+          c.bio,
+          c.personality,
+          c.life_outside_weekend,
+          c.relationship_to_scooby,
+          c.alibi,
+          c.secret,
+          c.motive,
+          c.real_motive ?? null,
+          c.gender,
+          c.name,
+        ],
       });
       if (result.rowsAffected > 0) updated++;
       else console.log(`WARNING: no character row found named "${c.name}"`);

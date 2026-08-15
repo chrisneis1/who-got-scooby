@@ -8,6 +8,7 @@ const LINKS = [
   { href: "/me", label: "My Character" },
   { href: "/basecamp", label: "Basecamp" },
   { href: "/case-file", label: "Case File" },
+  { href: "/messages", label: "Messages" },
 ];
 
 export default function GuestNav({ guestName }: { guestName?: string }) {
