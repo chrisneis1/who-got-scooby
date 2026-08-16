@@ -8,6 +8,7 @@ import { sendPublicMessageAction } from "@/lib/message-actions";
 import AutoRefresh from "./AutoRefresh";
 import GuestNav from "@/components/GuestNav";
 import ChatThread, { DisplayMessage } from "@/components/ChatThread";
+import ClickablePortrait from "@/components/ClickablePortrait";
 
 export default async function BasecampPage() {
   const guest = await getCurrentGuest();
@@ -57,8 +58,7 @@ export default async function BasecampPage() {
               🔮 Game Master — not a suspect
             </span>
             {gm.portrait_image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <ClickablePortrait
                 src={gm.portrait_image}
                 alt={gm.name}
                 className="w-20 h-20 rounded-full object-cover border-4 border-mystery-purple mx-auto"
@@ -85,8 +85,7 @@ export default async function BasecampPage() {
             {suspects.map((c) => (
               <div key={c.id} className="mystery-card px-5 py-5 space-y-3">
                 {c.portrait_image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <ClickablePortrait
                     src={c.portrait_image}
                     alt={c.name}
                     className="w-20 h-20 rounded-full object-cover border-4 border-mystery-brown mx-auto"
