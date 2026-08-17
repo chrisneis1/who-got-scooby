@@ -2,14 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import type { DisplayMessage } from "@/lib/messages";
 
-export type DisplayMessage = {
-  id: number;
-  body: string;
-  created_at: string;
-  senderLabel: string;
-  isMine: boolean;
-};
+export type { DisplayMessage };
 
 /**
  * Generic two-way (or group) chat thread: message list + input, used for
@@ -19,8 +14,9 @@ export type DisplayMessage = {
  * for messages from other people without needing a websocket server.
  */
 export default function ChatThread({
-  messages,
+  messages: initialMessages,
   sendAction,
+  fetchAction,
   placeholder = "Type a message...",
   pollMs = 6000,
   emptyLabel = "No messages yet.",
@@ -28,12 +24,15 @@ export default function ChatThread({
 }: {
   messages: DisplayMessage[];
   sendAction?: (body: string) => Promise<{ ok: boolean; error?: string }>;
+  /** Polls just this thread's messages instead of refreshing the whole page. */
+  fetchAction?: () => Promise<DisplayMessage[]>;
   placeholder?: string;
   pollMs?: number;
   emptyLabel?: string;
   readOnly?: boolean;
 }) {
   const router = useRouter();
+  const [messages, setMessages] = useState(initialMessages);
   const [text, setText] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
@@ -44,9 +43,15 @@ export default function ChatThread({
   }, [messages.length]);
 
   useEffect(() => {
-    const interval = setInterval(() => router.refresh(), pollMs);
+    const interval = setInterval(() => {
+      if (fetchAction) {
+        fetchAction().then(setMessages);
+      } else {
+        router.refresh();
+      }
+    }, pollMs);
     return () => clearInterval(interval);
-  }, [router, pollMs]);
+  }, [router, pollMs, fetchAction]);
 
   async function handleSend() {
     const trimmed = text.trim();
@@ -57,7 +62,11 @@ export default function ChatThread({
     setSending(false);
     if (result.ok) {
       setText("");
-      router.refresh();
+      if (fetchAction) {
+        setMessages(await fetchAction());
+      } else {
+        router.refresh();
+      }
     } else {
       setError(result.error || "Couldn't send that.");
     }

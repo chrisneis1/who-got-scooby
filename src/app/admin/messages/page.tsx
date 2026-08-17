@@ -8,7 +8,11 @@ import {
   adminDmChannelKey,
   resolveSenderCharacterNames,
 } from "@/lib/messages";
-import { adminReplyDMAction } from "@/lib/message-actions";
+import {
+  adminReplyDMAction,
+  fetchAdminPairThreadAction,
+  fetchAdminGuestThreadAction,
+} from "@/lib/message-actions";
 import ChatThread, { DisplayMessage } from "@/components/ChatThread";
 
 export default async function AdminMessagesPage() {
@@ -84,7 +88,12 @@ async function PairThread({ pairId, pairLabel }: { pairId: string; pairLabel: st
         <span className="text-xs font-sans text-mystery-brown/50">{messages.length} message(s)</span>
       </summary>
       <div className="mt-3">
-        <ChatThread messages={messages} readOnly emptyLabel="Nothing sent yet." />
+        <ChatThread
+          messages={messages}
+          fetchAction={fetchAdminPairThreadAction.bind(null, pairId)}
+          readOnly
+          emptyLabel="Nothing sent yet."
+        />
       </div>
     </details>
   );
@@ -110,6 +119,7 @@ async function GuestThread({ guestId, guestName }: { guestId: number; guestName:
         <ChatThread
           messages={messages}
           sendAction={adminReplyDMAction.bind(null, guestId)}
+          fetchAction={fetchAdminGuestThreadAction.bind(null, guestId)}
           placeholder={`Reply to ${guestName}...`}
           emptyLabel="No questions yet."
         />

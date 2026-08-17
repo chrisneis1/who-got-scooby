@@ -7,7 +7,12 @@ import {
   getCharacterNameForGuest,
   adminDmChannelKey,
 } from "@/lib/messages";
-import { sendCharacterDMAction, sendAdminDMAction } from "@/lib/message-actions";
+import {
+  sendCharacterDMAction,
+  sendAdminDMAction,
+  fetchCharacterDMMessagesAction,
+  fetchAdminDMMessagesAction,
+} from "@/lib/message-actions";
 import GuestNav from "@/components/GuestNav";
 import ChatThread, { DisplayMessage } from "@/components/ChatThread";
 
@@ -62,6 +67,7 @@ export default async function MessagesPage() {
             <ChatThread
               messages={characterMessages}
               sendAction={sendCharacterDMAction.bind(null, pair.id)}
+              fetchAction={fetchCharacterDMMessagesAction.bind(null, pair.id)}
               placeholder={`Message ${partnerName}...`}
               emptyLabel={`Nothing yet — say hi to ${partnerName}.`}
             />
@@ -80,6 +86,7 @@ export default async function MessagesPage() {
           <ChatThread
             messages={adminMessages}
             sendAction={sendAdminDMAction}
+            fetchAction={fetchAdminDMMessagesAction}
             placeholder="Ask a question..."
             emptyLabel="No questions yet."
           />

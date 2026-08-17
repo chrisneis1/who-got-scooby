@@ -4,7 +4,7 @@ import { getCurrentGuest } from "@/lib/guest-session";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { listPublicCharacters, countUnclaimedCharacters } from "@/lib/characters";
 import { listMessages, resolveSenderCharacterNames } from "@/lib/messages";
-import { sendPublicMessageAction } from "@/lib/message-actions";
+import { sendPublicMessageAction, fetchPublicMessagesAction } from "@/lib/message-actions";
 import GuestNav from "@/components/GuestNav";
 import ChatThread, { DisplayMessage } from "@/components/ChatThread";
 import ClickablePortrait from "@/components/ClickablePortrait";
@@ -127,6 +127,7 @@ export default async function BasecampPage() {
           <ChatThread
             messages={publicMessages}
             sendAction={guest ? sendPublicMessageAction : undefined}
+            fetchAction={fetchPublicMessagesAction}
             readOnly={!guest}
             placeholder="Post something everyone can see..."
             emptyLabel="Nothing posted yet."

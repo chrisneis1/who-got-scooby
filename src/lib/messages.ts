@@ -63,6 +63,15 @@ export type MessageRow = {
   created_at: string;
 };
 
+/** Shaped for display — sender identity already resolved to a label, from the current viewer's perspective. */
+export type DisplayMessage = {
+  id: number;
+  body: string;
+  created_at: string;
+  senderLabel: string;
+  isMine: boolean;
+};
+
 export async function sendMessage(
   channelType: ChannelType,
   channelKey: string,
