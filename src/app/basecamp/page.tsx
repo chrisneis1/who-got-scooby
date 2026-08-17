@@ -130,6 +130,7 @@ export default async function BasecampPage() {
             readOnly={!guest}
             placeholder="Post something everyone can see..."
             emptyLabel="Nothing posted yet."
+            pollMs={30000}
           />
         </section>
       </div>
