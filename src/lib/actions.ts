@@ -191,6 +191,21 @@ export async function adminResetQuizAction(guestId: number) {
   await resetGuestQuiz(guestId);
 }
 
+// Deletes every guest and their messages, unclaims every character, and
+// resets killer_confirmed — same effect as the db:reset-guests script, but
+// runnable from the dashboard. Deliberately does not touch is_killer or any
+// character content.
+export async function adminResetAllGuestsAction() {
+  await requireAdmin();
+  await withTransaction(async (tx) => {
+    await tx.execute(`DELETE FROM messages`);
+    await tx.execute(`DELETE FROM guests`);
+    await tx.execute(`UPDATE characters SET taken = 0`);
+    await tx.execute(`UPDATE event SET killer_confirmed = 0 WHERE id = 1`);
+  });
+  redirect("/admin?saved=1");
+}
+
 const MAX_PORTRAIT_BYTES = 4 * 1024 * 1024; // 4MB — plenty for a portrait, keeps the DB reasonable
 
 export async function adminUpdateCharacterAction(id: number, formData: FormData) {

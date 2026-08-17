@@ -4,9 +4,15 @@ import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { listGuestsForAdmin } from "@/lib/guest-session";
 import { listAdminCharacters } from "@/lib/characters";
 import { getEvent } from "@/lib/event";
-import { adminLogoutAction, adminResetQuizAction, adminUpdateEventAction } from "@/lib/actions";
+import {
+  adminLogoutAction,
+  adminResetQuizAction,
+  adminResetAllGuestsAction,
+  adminUpdateEventAction,
+} from "@/lib/actions";
 import ReassignForm from "./ReassignForm";
 import AdminKillerSection from "./AdminKillerSection";
+import ResetGuestsButton from "./ResetGuestsButton";
 
 export default async function AdminDashboard({
   searchParams,
@@ -84,9 +90,14 @@ export default async function AdminDashboard({
 
         {/* Guest list */}
         <section className="mystery-card px-6 py-6 space-y-4">
-          <h2 className="font-display text-2xl text-mystery-orange-dark">
-            Guests ({guests.length})
-          </h2>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <h2 className="font-display text-2xl text-mystery-orange-dark">
+              Guests ({guests.length})
+            </h2>
+            {guests.length > 0 && (
+              <ResetGuestsButton action={adminResetAllGuestsAction} guestCount={guests.length} />
+            )}
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
