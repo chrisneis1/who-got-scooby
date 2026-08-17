@@ -5,7 +5,6 @@ import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { listPublicCharacters, countUnclaimedCharacters } from "@/lib/characters";
 import { listMessages, resolveSenderCharacterNames } from "@/lib/messages";
 import { sendPublicMessageAction } from "@/lib/message-actions";
-import AutoRefresh from "./AutoRefresh";
 import GuestNav from "@/components/GuestNav";
 import ChatThread, { DisplayMessage } from "@/components/ChatThread";
 import ClickablePortrait from "@/components/ClickablePortrait";
@@ -32,7 +31,6 @@ export default async function BasecampPage() {
 
   return (
     <main className="min-h-screen px-4 py-12">
-      <AutoRefresh />
       <GuestNav guestName={guest?.name} />
       <div className="max-w-5xl mx-auto space-y-8">
         <div className="text-center space-y-2">

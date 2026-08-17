@@ -1,10 +1,9 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { guestUpdatePortraitAction } from "@/lib/actions";
 import { compressImageFile } from "@/lib/compress-image-client";
 
-export default function PhotoUpload() {
+export default function PortraitFileInput() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
 
@@ -24,23 +23,16 @@ export default function PhotoUpload() {
   }
 
   return (
-    <form action={guestUpdatePortraitAction} className="flex flex-wrap items-center justify-center gap-2">
+    <>
       <input
         ref={inputRef}
         name="portrait_file"
         type="file"
         accept="image/*"
-        required
         onChange={handleFileChange}
-        className="mystery-input text-sm !py-1.5"
+        className="mystery-input w-full text-sm"
       />
-      <button
-        type="submit"
-        disabled={busy}
-        className="mystery-btn mystery-btn-secondary !text-sm !py-1.5 !px-3 disabled:opacity-50"
-      >
-        {busy ? "Preparing..." : "Update Photo"}
-      </button>
-    </form>
+      {busy && <p className="text-xs text-mystery-brown/60 mt-1">Preparing image...</p>}
+    </>
   );
 }

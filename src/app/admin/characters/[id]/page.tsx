@@ -4,6 +4,7 @@ import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { getAdminCharacter } from "@/lib/characters";
 import { adminUpdateCharacterAction } from "@/lib/actions";
 import KillerIndicator from "./KillerIndicator";
+import PortraitFileInput from "./PortraitFileInput";
 
 export default async function CharacterEditPage({
   params,
@@ -80,12 +81,7 @@ export default async function CharacterEditPage({
                 Upload anytime — this can be changed even after a guest has already been assigned
                 this character.
               </p>
-              <input
-                name="portrait_file"
-                type="file"
-                accept="image/*"
-                className="mystery-input w-full text-sm"
-              />
+              <PortraitFileInput />
               <label className="block text-xs font-semibold mt-3 mb-1 text-mystery-brown/70">
                 ...or paste an image URL instead
               </label>
